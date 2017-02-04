@@ -14,18 +14,33 @@
 ###############################################################################################
 # Setup stage of the menu script. Modify to set global variables if necessary
 ###############################################################################################
-Write-Host "Setting environment variable for PSMgmtRoot:"
+# Active Directory environment variables
+$domainName = "contoso.local"
+$domainAdmin = "admin"
+$adminName = $domainName + "\" + $domainAdmin
+Write-Host "Setting environment variable for domain admin..."
+[Environment]::SetEnvironmentVariable("adminName", $adminName) # environment variable for domain admin
+
+Write-Host "Setting environment variable for PSFmwrkRoot..."
 $basePath = $PSScriptRoot
-[Environment]::SetEnvironmentVariable("PSMgmtRoot", $basePath) # environment variable for root dirrectory
-Write-Host '$env:PSMgmtRoot = ', $env:PSMgmtRoot
-cd $env:PSMgmtRoot
+[Environment]::SetEnvironmentVariable("PSFmwrkRoot", $basePath) # environment variable for root dirrectory
+Write-Host '$env:PSFmwrkRoot = ', $env:PSFmwrkRoot
+cd $env:PSFmwrkRoot
+
+$ListOfComputers = $basePath + "\Remote\PCLists\userPCs.csv"
+if (Test-Path $ListOfComputers){
+    Write-Host "Setting environment variable for list of computers:"
+    [Environment]::SetEnvironmentVariable("COMPUTERSLIST", $ListOfComputers)
+    Write-Host '$env:COMPUTERSLIST = ', $env:COMPUTERSLIST
+}
+
 ###############################################################################################
 
 function menu {
     Get-PSSession | Remove-PSSession
     $host.ui.RawUI.WindowTitle = "PS Management Framework"
     [console]::ResetColor()
-    $psISE.Options.RestoreDefaultTokenColors()
+    #$psISE.Options.RestoreDefaultTokenColors()
     ? (Test-Path variable:global:menu ) { Remove-Variable -Name menu -Force }
     ? (Test-Path variable:global:dirMenu ) {Remove-Variable -Name dirMenu -Force }
     ? (Test-Path variable:global:cwdStruct ) {Remove-Variable -Name cwdStruct -Force }
