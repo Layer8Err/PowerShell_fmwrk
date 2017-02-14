@@ -25,7 +25,7 @@ Write-Host "Setting environment variable for PSFmwrkRoot..."
 $basePath = $PSScriptRoot
 [Environment]::SetEnvironmentVariable("PSFmwrkRoot", $basePath) # environment variable for root dirrectory
 Write-Host '$env:PSFmwrkRoot = ', $env:PSFmwrkRoot
-cd $env:PSFmwrkRoot
+Set-Location $env:PSFmwrkRoot
 
 $ListOfComputers = $basePath + "\Remote\PCLists\userPCs.csv"
 if (Test-Path $ListOfComputers){
@@ -110,7 +110,7 @@ function menu {
         pause
     }
     if (($chosen.Color -eq "Green") -or ($chosen.Color -eq "Yellow")){
-        cd $chosen.Path
+        Set-Location $chosen.Path
         menu
     }
     if ($chosen.Color -eq "Cyan") {
@@ -139,5 +139,4 @@ function menu {
     }
 }
 
-# Launch the menu
-menu
+menu # Launch the menu
