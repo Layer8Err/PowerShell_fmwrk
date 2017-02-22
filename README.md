@@ -17,7 +17,9 @@ You can re-organize your file structure as you see fit.
 Each PowerShell script can be executed if the script begins with:
 
   1 ExecuteOut      (Run the selected script immediately)
+  
   2 ExecuteOutOpen  (Opens the script in ISE and executes)
+  
   3 anything else   (Opens the script in ISE)
 
 Each PowerShell script should begin with the appropriate execution action followed
@@ -39,5 +41,7 @@ the administrator to perform various tasks.
 These scripts are grouped by:
 
   1 Active Directory
+  
   2 Office 365
+  
   3 Direct
