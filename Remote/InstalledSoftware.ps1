@@ -2,6 +2,7 @@
 ###############################################################################################
 # Get a list of all Installed Programs
 #
+# Run through a list of computers and build an array of installed applications
 ###############################################################################################
 $adminName = $env:adminName
 $pcList = $env:COMPUTERSLIST ## Path to list of computer-names and user-names
