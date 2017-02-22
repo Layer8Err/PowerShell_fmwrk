@@ -15,6 +15,7 @@ This framework is designed to be run out of a nested folder structure hierarchy.
 You can re-organize your file structure as you see fit.
 
 Each PowerShell script can be executed if the script begins with:
+
 1) ExecuteOut      # Run the selected script immediately
 
 2) ExecuteOutOpen  # Opens the script in ISE and executes
