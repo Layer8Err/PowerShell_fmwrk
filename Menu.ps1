@@ -26,6 +26,7 @@ Write-Host "Reading environment_settings.xml from Config folder..."
 $settingsXMLFile = $env:PSFmwrkRoot + '\Setup\Config\environment_settings.xml'
 if (!(Test-Path $settingsXMLFile)){
     & ($env:PSFmwrkRoot + '\Setup\Config\Configure.ps1') # Launch xml Configuration script for initial setup
+    Set-Location $env:PSFmwrkRoot
 }
 $xml = [xml](Get-Content $settingsXMLFile)
 $domainName = $xml.environment.domain
