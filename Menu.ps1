@@ -14,20 +14,34 @@
 ###############################################################################################
 # Setup stage of the menu script. Modify to set global variables if necessary
 ###############################################################################################
-# Active Directory environment variables
-$domainName = "contoso.local"
-$domainAdmin = "admin"
-$adminName = $domainName + "\" + $domainAdmin
-Write-Host "Setting environment variable for domain admin..."
-[Environment]::SetEnvironmentVariable("adminName", $adminName) # environment variable for domain admin
+# Environment variables
 
 Write-Host "Setting environment variable for PSFmwrkRoot..."
 $basePath = $PSScriptRoot
-[Environment]::SetEnvironmentVariable("PSFmwrkRoot", $basePath) # environment variable for root dirrectory
+[Environment]::SetEnvironmentVariable("PSFmwrkRoot", $basePath) # environment variable for root directory
 Write-Host '$env:PSFmwrkRoot = ', $env:PSFmwrkRoot
 Set-Location $env:PSFmwrkRoot
 
+Write-Host "Reading environment_settings.xml from Config folder..."
+$settingsXMLFile = $env:PSFmwrkRoot + '\Setup\Config\environment_settings.xml'
+if (!(Test-Path $settingsXMLFile)){
+    & ($env:PSFmwrkRoot + '\Setup\Config\Configure.ps1') # Launch xml Configuration script for initial setup
+}
+$xml = [xml](Get-Content $settingsXMLFile)
+$domainName = $xml.environment.domain
+[Environment]::SetEnvironmentVariable("domainName", $domainName) # environment variable for domain name
+Write-Host '$env:domainName = ', $env:domainName
+
+$domainAdmin = $xml.environment.domainadmin
+$adminName = $env:domainName + "\" + $domainAdmin
+Write-Host "Setting environment variable for domain admin..."
+[Environment]::SetEnvironmentVariable("adminName", $adminName) # environment variable for domain admin
+
 $ListOfComputers = $basePath + "\Remote\PCLists\userPCs.csv"
+if (!(Test-Path $ListOfComputers)){
+    Write-Host "Creating dummy lists for computers..."
+    & ($env:PSFmwrkRoot + '\Remote\PCLists\CreateEmptyLists.ps1')
+}
 if (Test-Path $ListOfComputers){
     Write-Host "Setting environment variable for list of computers:"
     [Environment]::SetEnvironmentVariable("COMPUTERSLIST", $ListOfComputers)
