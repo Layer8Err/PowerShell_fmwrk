@@ -17,7 +17,8 @@
 # Environment variables
 
 Write-Host "Setting environment variable for PSFmwrkRoot..."
-$basePath = $PSScriptRoot
+Set-Location $PSScriptRoot
+$basePath = $PWD.Path
 [Environment]::SetEnvironmentVariable("PSFmwrkRoot", $basePath) # environment variable for root directory
 Write-Host '$env:PSFmwrkRoot = ', $env:PSFmwrkRoot
 Set-Location $env:PSFmwrkRoot
@@ -38,10 +39,10 @@ $adminName = $env:domainName + "\" + $domainAdmin
 Write-Host "Setting environment variable for domain admin..."
 [Environment]::SetEnvironmentVariable("adminName", $adminName) # environment variable for domain admin
 
-$ListOfComputers = $basePath + "\Remote\PCLists\userPCs.csv"
+$ListOfComputers = $basePath + "\CSVLists\userPCs.csv"
 if (!(Test-Path $ListOfComputers)){
     Write-Host "Creating dummy lists for computers..."
-    & ($env:PSFmwrkRoot + '\Remote\PCLists\CreateEmptyLists.ps1')
+    & ($env:PSFmwrkRoot + '\CSVLists\CreateEmptyLists.ps1')
 }
 if (Test-Path $ListOfComputers){
     Write-Host "Setting environment variable for list of computers:"
@@ -98,17 +99,26 @@ function menu {
         $menu += $dirMenu
         ++$index
     }
-    $properties = @{
-        'Selection'=$index;
-        'Path'="..";
-        'Name'="Back";
-        'Color'="Yellow"
+    if ($cwd -eq $env:PSFmwrkRoot){
+        $properties = @{
+            'Selection'=$index;
+            'Path'="..";
+            'Name'="Exit";
+            'Color'="Red"
+        }
+    } else { 
+        $properties = @{
+            'Selection'=$index;
+            'Path'="..";
+            'Name'="Back";
+            'Color'="Yellow"
+        }
     }
     $dirMenu = New-Object PSObject -Property $properties
     $menu += $dirMenu
     Clear-Host
     $rootName = (Get-Item -Path ".\" -Verbose).Name
-    Write-Host "=======$rootName======" -ForegroundColor White
+    Write-Host "===========$rootName==========" -ForegroundColor White
     $menu | ForEach-Object {
         [String]$color = $_.Color
         $selection = $_.Selection
@@ -151,6 +161,9 @@ function menu {
                 $psISE.CurrentPowerShellTab.Files.Add($script)
             }
         }
+    }
+    if ($chosen.Color -eq "Red"){
+        exit
     }
 }
 

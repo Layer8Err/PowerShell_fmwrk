@@ -6,4 +6,4 @@ $host.ui.RawUI.WindowTitle = 'Enabling WinRM...'
 ###############################################################################################
 
 Write-Host "Enabling WinRM..." -ForegroundColor Cyan
-winrm enable
+Enable-PSRemoting -Force ; Write-Output "y" | winrm qc
