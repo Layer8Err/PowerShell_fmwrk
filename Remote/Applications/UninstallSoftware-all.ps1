@@ -25,8 +25,8 @@ function userLookup ([string]$pcname){ return $userList.user[[array]::IndexOf($u
 $unintallFunction = [ScriptBlock]::Create({
     function uninstall ($SoftToRemove = $null){
         if ($SoftToRemove -ne $null){
-            $uninstall32 = Get-ChildItem "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall" | foreach { Get-ItemProperty $_.PSPath } | ? { ([String]$_).trim() -match ([String]$SoftToRemove).Trim() } | select UninstallString, DisplayName
-            $uninstall64 = Get-ChildItem "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" | foreach { Get-ItemProperty $_.PSPath } | ? { ([String]$_).trim() -match ([String]$SoftToRemove).Trim() } | select UninstallString, DisplayName
+            $uninstall32 = Get-ChildItem "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall" | ForEach-Object { Get-ItemProperty $_.PSPath } | Where-Object { ([String]$_).trim() -match ([String]$SoftToRemove).Trim() } | Select-Object UninstallString, DisplayName
+            $uninstall64 = Get-ChildItem "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" | ForEach-Object { Get-ItemProperty $_.PSPath } | Where-Object { ([String]$_).trim() -match ([String]$SoftToRemove).Trim() } | Select-Object UninstallString, DisplayName
             $uninstall32c = @()
             $uninstall64c = @()
             $uninstall32 | ForEach-Object {
@@ -40,14 +40,14 @@ $unintallFunction = [ScriptBlock]::Create({
                 }
             }
             function thisUninstall ($uninstArr) {
-                $uninstArr | foreach {
+                $uninstArr | ForEach-Object {
                     $thisUninstall = $_ -Replace "msiexec.exe","" -replace "/I", "" -replace "/X", ""
                     $thisUninstall = $thisUninstall.Trim()
                     if ($thisUninstall -match ".exe"){
-                        echo "$thisUninstall -arg /S"
+                        Write-Output "$thisUninstall -arg /S"
                         Start-Process $thisUninstall -arg "/S" -Wait
                     } else {
-                        echo "msiexec.exe -arg /X $thisUninstall /qn /norestart"
+                        Write-Output "msiexec.exe -arg /X $thisUninstall /qn /norestart"
                         Start-Process "msiexec.exe" -arg "/X `"$thisUninstall`" /qn /norestart" -Wait
                     }
                 }
@@ -89,14 +89,14 @@ Start-Sleep -Seconds 5
 $loop = $true
 $count = 0
 $njobs = (Get-Job -State Running).count
-Clear
+Clear-Host
 Write-Host -NoNewLine "Waiting for all uninstall jobs ($njobs) to complete" -ForegroundColor White
 While ($loop){
     if ((Get-Job -State Running).count -eq 0){ $loop = $false }
     if ($count -eq 50){ $loop = $false }
     $jobs = (Get-Job -State Running).count
     if ($jobs -ne $njobs){
-        Clear
+        Clear-Host
         Write-Host -NoNewLine "Waiting for all uninstall jobs ($jobs) to complete" -ForegroundColor White
         for ($i = 0 ; $i -lt $count + 1 ; $i ++){ Write-Host -NoNewline "." -ForegroundColor White }
         $njobs = $jobs
@@ -106,36 +106,36 @@ While ($loop){
     Start-Sleep -Seconds 1 # Wait for any running jobs to finish
     $count = $count + 1
 }
-Clear
+Clear-Host
 
-Get-Job -State Completed | %{ $computers += (Get-Job -Id $_.Id | Receive-Job -ErrorAction SilentlyContinue) }
+Get-Job -State Completed | ForEach-Object { $computers += (Get-Job -Id $_.Id | Receive-Job -ErrorAction SilentlyContinue) }
 
 if (((Get-Job -State Failed).count -gt 0) -or ($offline.Length -gt 0) -or ((Get-Job -State Running).count -gt 0) -or ($offlinePCs.Offline.Count -gt 0)){
     if ((Get-Job -State Running).count -gt 0){
         Start-Sleep -Milliseconds 200
         Write-Host "PCs with unfinnished business:" -ForegroundColor Yellow
-        (Get-Job -State Running).Location | Foreach {
+        (Get-Job -State Running).Location | ForEach-Object {
             $u = userLookup -pcname $_
             $p = $_
-            echo "$u : $p"
+            Write-Output "$u : $p"
         }
     }
     if ((Get-Job -State Failed).count -gt 0){
         Start-Sleep -Milliseconds 200
         Write-Host "PCs with failed jobs:" -ForegroundColor Yellow
-        (Get-Job -State Failed).Location | Foreach {
+        (Get-Job -State Failed).Location | ForEach-Object {
             userLookup -pcname $_
             $p = $_.ToString()
-            echo "$u : $p"
+            Write-Output "$u : $p"
         }
     }
     if ($offlinePCs.Offline.Count -gt 0){
         Start-Sleep -Milliseconds 200
         Write-Host "Offline PCs" -ForegroundColor Yellow
-        $offlinePCs | foreach {
+        $offlinePCs | ForEach-Object {
             $p = $_.Offline
             $u = userLookup -pcname $p
-            echo "$u : $p" 
+            Write-Output "$u : $p" 
         }
     }
     pause

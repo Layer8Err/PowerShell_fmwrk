@@ -14,6 +14,7 @@ Write-Host "Beginning Preliminary System Scan..." -ForegroundColor Yellow
 sfc /scannow
 
 ### Options for attempting to fix a machine from an ISO
+# Currently Microsoft recommends using install.wim as the source, not install.esd
 if ($fixFromISO){
     Write-Host "Mounting Windows 10 ISO from the network..." -ForegroundColor Yellow
     $mountResult = Mount-DiskImage -ImagePath $win10ISOPath -PassThru

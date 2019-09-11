@@ -19,7 +19,7 @@ Import-Csv $pcList | ForEach-Object {
         $computer += $_.computer
 }
 
-function computerInfo {
+function HWcomputerInfo {
     [CmdletBinding()] Param(
     [Parameter(Position = 0, Mandatory = $True)]
     [String]$pcname,
@@ -77,7 +77,7 @@ function computerInfo {
         $GPU = $GPUinfo.Name
         $BIOS = $BIOSinfo.SMBIOSBIOSVersion
         $pctfree = @()
-        $freeSpace | %{ if($_.Size -gt 0){ $pctfree += [Math]::Round(($_.FreeSpace / $_.Size)*100) }}
+        $freeSpace | ForEach-Object { if($_.Size -gt 0){ $pctfree += [Math]::Round(($_.FreeSpace / $_.Size)*100) }}
         If ($memString -notlike "0*") {
             $props = @{
                 Computer = $Computer
@@ -119,20 +119,20 @@ for ( $i=0; $i -le ($user.Length - 1); $i++) {
 	$iuser = $user[$i]
 	$icomputer = $computer[$i]
     $currentOpp = "Checking PC info on " + $icomputer + " " + $iuser
-    echo $currentOpp
-    computerInfo -pcname $icomputer -uname $iuser
+    Write-Output $currentOpp
+    HWcomputerInfo -pcname $icomputer -uname $iuser
 
 }
 
 $count = 0
 $njobs = (Get-Job -State Running).count
-Clear
+Clear-Host
 Write-Host -NoNewline "Waiting for most jobs ($njobs) to complete" -ForegroundColor White
 ## Wait for jobs to finish
 While (((Get-Job -State Running).count -gt 0) -and ($count -lt 60)){
     $jobs = (Get-Job -State Running).count
     if ($njobs -ne $jobs){
-        Clear
+        Clear-Host
         Write-Host -NoNewline "Waiting for most jobs ($jobs) to complete" -ForegroundColor White
         for ($i = 0 ; $i -lt $count + 1 ; $i ++){ Write-Host -NoNewline "." -ForegroundColor White }
         $njobs = $jobs
@@ -143,7 +143,7 @@ While (((Get-Job -State Running).count -gt 0) -and ($count -lt 60)){
     $count = $count + 1
     if ((Get-Job -State Running).count -eq 0){$count = 60}
 }
-Clear
+Clear-Host
 
 ## Return computerInfo to an array of objects
 $computerInfos = @()
@@ -155,7 +155,7 @@ foreach ($job in (Get-Job -State Completed)){
 Get-Job | Remove-Job
 
 # Array of objects has been stored in $computerInfos
-$computerInfos | Select Computer, User, Model, BIOS, DISK, CPU, Arch, RAM, HDD, FREE, OS, GPU | Out-GridView
+$computerInfos | Select-Object Computer, User, Model, BIOS, DISK, CPU, Arch, RAM, HDD, FREE, OS, GPU | Out-GridView
 
 ## Save computer info to XML
 #$computerInfos | Export-Clixml -Path infos.xml

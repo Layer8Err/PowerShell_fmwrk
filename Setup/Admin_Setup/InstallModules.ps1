@@ -74,7 +74,7 @@ Function Install-ADModule {
     # Verify
     If ($Test) {
         Write-Verbose '---Validating AD PowerShell install'
-        dir (Join-Path -Path $HOME -ChildPath Downloads\*msu)
+        Get-ChildItem (Join-Path -Path $HOME -ChildPath Downloads\*msu)
         Get-HotFix -Id KB2693643
         Get-Help Get-ADDomain
         Get-ADDomain

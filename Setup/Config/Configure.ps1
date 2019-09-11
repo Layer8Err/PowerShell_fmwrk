@@ -89,4 +89,4 @@ foreach ($element in $xml.SelectNodes("//environment/*")){
 $xml.Save($settingsXMLFile)
 Write-Host "...Done!" -ForegroundColor Yellow
 
-cd $env:PSFmwrkRoot
+Set-Location $env:PSFmwrkRoot

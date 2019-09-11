@@ -9,6 +9,6 @@ Write-Host "Updating Group Policy for $pcname..." -ForegroundColor Yellow
 gpupdate /force
 
 $gpoapplied = gpresult /Scope Computer /v
-echo $gpoapplied
+Write-Output $gpoapplied
 
 PAUSE

@@ -32,7 +32,7 @@ for ( $i=0; $i -le ($user.Length - 1); $i++) {
 ############
 $cacheCleanBlock = [scriptblock]::Create({
     function cleanAutocomplete ($username) {
-        Kill -Name OUTLOOK -Force
+        Stop-Process -Name OUTLOOK -Force
         $user = $username
         $path = "C:\Users\$user\AppData\Local\Micorosft\Outlook\RoamCache\"
         $delString = $path + "Stream_Autocomplete*.dat"

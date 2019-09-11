@@ -80,7 +80,7 @@ function userMenu {
         $proxyAddresses = $user.proxyAddresses
         $userProxyAddresses = @()
         $index = 0
-        $proxyAddresses | %{
+        $proxyAddresses | ForEach-Object {
             $index = $index + 1
             $proxyProps = @{
                 'Selection' = $index;

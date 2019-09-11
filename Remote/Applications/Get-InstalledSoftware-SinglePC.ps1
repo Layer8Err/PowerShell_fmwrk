@@ -61,9 +61,9 @@ function InstalledPrograms {
 }
 
 $allPrograms = @()
-if (!(Test-Connection -ComputerName $pcname -BufferSize 16 -Count 1 -ErrorAction 0 -Quiet)) { echo "......Unreachable" } else {
+if (!(Test-Connection -ComputerName $pcname -BufferSize 16 -Count 1 -ErrorAction 0 -Quiet)) { Write-Output "......Unreachable" } else {
     Write-Host "Checking installed programs on $pcname"
     $allPrograms += InstalledPrograms -Computer $pcname
 }
 
-$allPrograms | Select Computer, DisplayName, Version, InstallDate, Architecture | Out-GridView
+$allPrograms | Select-Object Computer, DisplayName, Version, InstallDate, Architecture | Out-GridView

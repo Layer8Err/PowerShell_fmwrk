@@ -67,4 +67,4 @@ $allPrograms = @()
 Write-Host "Checking installed programs on $pcname..." -ForegroundColor Yellow
 $allPrograms = InstalledPrograms -Computer $pcname
 
-$allPrograms | Select Computer, DisplayName, Version, InstallDate, Architecture | Out-GridView
+$allPrograms | Select-Object Computer, DisplayName, Version, InstallDate, Architecture | Out-GridView

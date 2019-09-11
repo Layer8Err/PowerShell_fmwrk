@@ -7,8 +7,7 @@
 
 #get my computername
 $MycompName = [string]((Get-WmiObject Win32_ComputerSystem).Name)
-Write-Host "Getting localll hardware info..." -ForegroundColor Cyan
-$results = ""
+Write-Host "Getting local hardware info..." -ForegroundColor Cyan
 
 $PCinfo = Get-WmiObject -ComputerName $MycompName Win32_ComputerSystem
 $OSinfo = Get-WmiObject -ComputerName $MycompName Win32_OperatingSystem

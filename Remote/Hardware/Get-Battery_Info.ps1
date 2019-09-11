@@ -80,7 +80,7 @@ for ( $i=0; $i -le ($user.Length - 1); $i++) {
 	$iuser = $user[$i]
 	$icomputer = $computer[$i] 
 	$currentOpp = "Querying battery info on " + $icomputer + " (" + $iuser + "`'s computer)"
-	echo $currentOpp
+	Write-Output $currentOpp
     if (!(Test-Connection -ComputerName $icomputer -BufferSize 16 -Count 1 -ErrorAction 0 -Quiet)) { echo "Unreachable!" } else {
         if ($icomputer -ne $MycompName){
             $batteryInfo = Invoke-Command -ComputerName $icomputer -Credential $cred -ScriptBlock $scriptBlock
@@ -97,5 +97,5 @@ Get-PSSession | Remove-PSSession
 
 ## Show all battery data where est runtime < 30
 #$batteries | Where-Object -Property EstRunTime -lt 30 | Where-Object -Property EstChargeRemaining -gt 0 | Select Computer, User, DeviceID, EstRunTime, EstChargeRemaining, Status | Out-GridView
-$batteries | Sort-Object -Property User |Where-Object -Property EstChargeRemaining -gt 0 | Select Computer, User, DeviceID, EstRunTime, EstChargeRemaining, Status | Out-GridView
+$batteries | Sort-Object -Property User |Where-Object -Property EstChargeRemaining -gt 0 | Select-Object Computer, User, DeviceID, EstRunTime, EstChargeRemaining, Status | Out-GridView
 Pause
