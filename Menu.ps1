@@ -16,14 +16,14 @@
 ###############################################################################################
 # Environment variables
 
-Write-Host "Setting environment variable for PSFmwrkRoot..."
+Write-Host "Setting environment variable for PSFmwrkRoot..." -ForegroundColor Yellow
 Set-Location $PSScriptRoot
 $basePath = $PWD.Path
 [Environment]::SetEnvironmentVariable("PSFmwrkRoot", $basePath) # environment variable for root directory
 Write-Host '$env:PSFmwrkRoot = ', $env:PSFmwrkRoot
 Set-Location $env:PSFmwrkRoot
 
-Write-Host "Reading environment_settings.xml from Config folder..."
+Write-Host "Reading environment_settings.xml from Config folder..." -ForegroundColor Yellow
 $settingsXMLFile = $env:PSFmwrkRoot + '\Setup\Config\environment_settings.xml'
 if (!(Test-Path $settingsXMLFile)){
     & ($env:PSFmwrkRoot + '\Setup\Config\Configure.ps1') # Launch xml Configuration script for initial setup
@@ -32,22 +32,27 @@ if (!(Test-Path $settingsXMLFile)){
 $xml = [xml](Get-Content $settingsXMLFile)
 $domainName = $xml.environment.domain
 [Environment]::SetEnvironmentVariable("domainName", $domainName) # environment variable for domain name
-Write-Host '$env:domainName = ', $env:domainName
+Write-Host '$env:domainName = ', $env:domainName -ForegroundColor Cyan
 
 $domainAdmin = $xml.environment.domainadmin
 $adminName = $env:domainName + "\" + $domainAdmin
-Write-Host "Setting environment variable for domain admin..."
+Write-Host "Setting environment variable for domain admin..." -ForegroundColor Yellow
 [Environment]::SetEnvironmentVariable("adminName", $adminName) # environment variable for domain admin
 
+# Computer/Servers lists
 $ListOfComputers = $basePath + "\CSVLists\userPCs.csv"
-if (!(Test-Path $ListOfComputers)){
-    Write-Host "Creating dummy lists for computers..."
+Write-Host "Setting environment variable for list of computers:" -ForegroundColor Yellow
+[Environment]::SetEnvironmentVariable("COMPUTERSLIST", $ListOfComputers)
+Write-Host '$env:COMPUTERSLIST = ', $env:COMPUTERSLIST -ForegroundColor Cyan
+
+$ListOfServers = $basePath + "\CSVLists\servers.csv"
+Write-Host "Setting environment variable for list of servers:" -ForegroundColor Yellow
+[Environment]::SetEnvironmentVariable("SERVERSLIST", $ListOfServers)
+Write-Host '$env:SERVERSLIST = ', $env:SERVERSLIST -ForegroundColor Cyan
+
+if (!(Test-Path $ListOfServers) -or !(Test-Path $ListOfComputers)){
+    # Automatically create dummy CSV files
     & ($env:PSFmwrkRoot + '\CSVLists\CreateEmptyLists.ps1')
-}
-if (Test-Path $ListOfComputers){
-    Write-Host "Setting environment variable for list of computers:"
-    [Environment]::SetEnvironmentVariable("COMPUTERSLIST", $ListOfComputers)
-    Write-Host '$env:COMPUTERSLIST = ', $env:COMPUTERSLIST
 }
 
 ###############################################################################################
@@ -57,12 +62,12 @@ function menu {
     $host.ui.RawUI.WindowTitle = "PS Management Framework"
     [console]::ResetColor()
     #$psISE.Options.RestoreDefaultTokenColors()
-    ? (Test-Path variable:global:menu ) { Remove-Variable -Name menu -Force }
-    ? (Test-Path variable:global:dirMenu ) {Remove-Variable -Name dirMenu -Force }
-    ? (Test-Path variable:global:cwdStruct ) {Remove-Variable -Name cwdStruct -Force }
-    ? (Test-Path variable:global:chosen ) {Remove-Variable -Name chosen -Force }
-    ? (Test-Path variable:global:color ) {Remove-Variable -Name color -Force }
-    ? (Test-Path variable:global:cwd ) {Remove-Variable -Name cwd -Force }
+    Where-Object (Test-Path variable:global:menu ) { Remove-Variable -Name menu -Force }
+    Where-Object (Test-Path variable:global:dirMenu ) {Remove-Variable -Name dirMenu -Force }
+    Where-Object (Test-Path variable:global:cwdStruct ) {Remove-Variable -Name cwdStruct -Force }
+    Where-Object (Test-Path variable:global:chosen ) {Remove-Variable -Name chosen -Force }
+    Where-Object (Test-Path variable:global:color ) {Remove-Variable -Name color -Force }
+    Where-Object (Test-Path variable:global:cwd ) {Remove-Variable -Name cwd -Force }
     Start-Sleep -Milliseconds 200 ## Sleep to avoid color jumble (thanks Write-Host)
     $index = 1
     $menu= @()
@@ -166,5 +171,8 @@ function menu {
         exit
     }
 }
+
+# Get the creds for other scripts to use
+if ($cred) {} else { $cred = Get-Credential $adminName }
 
 menu # Launch the menu
